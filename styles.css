@@ -1,0 +1,84 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  color: hsl(240, 5%, 93%);
+}
+
+body {
+  height: 100vh;
+  background-color: hsl(240, 3%, 3%);
+  display: flex;
+  flex-direction: column;
+  min-width: 26rem;
+}
+
+header {
+  height: 4rem;
+  margin-bottom: 2rem;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.calculator {
+  border: .15rem solid hsl(240, 5%, 50%);
+  min-width: 24rem;
+  background-color: hsl(240, 5%, 50%);
+  box-shadow: rgba(0, 0, 0, 0.32) 0px 3px 6px, rgba(0, 0, 0, 0.46) 0px 3px 6px;
+}
+
+.calc-display {
+  box-sizing: border-box;
+  width: 100%;
+  background-color: hsl(240, 8%, 11%);
+  border: .15rem solid hsl(240, 5%, 50%);
+}
+
+.current-value {
+  height: 1.5rem;
+  text-align: right;
+  font-size: 1.5rem;
+  padding: .6rem .6rem .3rem;
+  color: hsl(240, 5%, 83%);
+}
+
+.new-value {
+  height: 3.6rem;
+  text-align: right;
+  font-size: 3rem;
+  padding: .3rem 1rem 1rem 0;
+}
+
+button {
+  background-color: hsl(240, 8%, 11%);
+  padding: 1rem 0;
+  width: 6rem;
+  font-size: 2rem;
+  border: .15rem solid hsl(240, 5%, 50%);
+  float: left;
+}
+
+button:nth-of-type(4n+5) {
+  clear: both;
+}
+
+button:nth-of-type(-n+4), button:nth-of-type(4n+4) {
+  background-color: hsl(240, 8%, 17%);
+}
+
+button:hover {
+  background-color: hsl(240, 8%, 25%);
+}
+
+footer, footer > * {
+  margin-top: auto;
+  text-align: center;
+  padding: .5rem;
+  color: hsl(240, 5%, 60%);
+  font-weight: 600;
+}
