@@ -1,8 +1,9 @@
-const digitBtns = document.querySelectorAll('button.digit');
 const clearBtn = document.querySelector('button.clear');
+const digitBtns = document.querySelectorAll('button.digit');
 const operatorBtns = document.querySelectorAll('button.operator');
-const equalBtn = document.querySelector('button.equal');
 const decimalBtn = document.querySelector('button.decimal');
+const equalsBtn = document.querySelector('button.equals');
+const negateBtn = document.querySelector('button.negate');
 const backBtn = document.querySelector('button.backspace');
 
 const newValDisplay = document.querySelector('.new-value');
@@ -13,6 +14,16 @@ let newValue = 0;
 let currentOperator = null;
 let lastBtnPressed = null;
 
+const DECIMALS = 10;
+
+clearBtn.addEventListener('click', clearAll);
+digitBtns.forEach(btn => btn.addEventListener('click', handleDigitClick));
+operatorBtns.forEach(btn => btn.addEventListener('click', handleOperatorClick));
+decimalBtn.addEventListener('click', handleDecimalClick);
+equalsBtn.addEventListener('click', handleEqualsClick);
+negateBtn.addEventListener('click', handleNegateClick);
+backBtn.addEventListener('click', handleBackClick);
+
 function clearAll() {
   currentEval = 0;
   newValue = 0;
@@ -22,59 +33,76 @@ function clearAll() {
   EvalDisplay.textContent = "";
 }
 
-clearBtn.addEventListener('click', clearAll);
-
-digitBtns.forEach(btn => btn.addEventListener('click', () => {
-  writeDigit(btn.textContent);
+function handleDigitClick() {
+  if (lastBtnPressed === "equals") clearAll();
+  if (newValue.toString() === "0") newValue = "";
+  if (lastBtnPressed === "operator") {
+    newValue = this.textContent;
+  } else {
+    newValue += this.textContent;
+  }
+  newValDisplay.textContent = newValue;
   lastBtnPressed = "digit";
 }
-));
 
-operatorBtns.forEach(btn => btn.addEventListener('click', () => {
+function handleOperatorClick() {
   if (lastBtnPressed !== "operator" && lastBtnPressed !== "equals") {
     currentEval = operate(currentOperator, currentEval, newValue);
   }
-  currentOperator = btn.textContent;
-  EvalDisplay.textContent = `${Math.round(currentEval * 10**10) / 10**10} ${currentOperator} `;
-  newValDisplay.textContent = Math.round(currentEval * 10**10) / 10**10;
-  newValue = 0;
+  currentOperator = this.textContent;
+  EvalDisplay.textContent = `${round(currentEval)} ${currentOperator} `;
+  newValDisplay.textContent = round(currentEval);
   lastBtnPressed = "operator";
 }
-));
 
-decimalBtn.addEventListener('click', () => {
+function handleDecimalClick() {
   if (lastBtnPressed === "equals") clearAll();
-  else if (newValue.toString().includes('.')) return;
-  else if (lastBtnPressed === "operator") newValDisplay.textContent = 0;
+  else if (newValue.toString().includes('.') && lastBtnPressed !== "operator") {
+    return;
+  } else if (lastBtnPressed === "operator") {
+    newValDisplay.textContent = 0;
+    newValue = 0;
+  } 
   newValDisplay.textContent += '.';
   newValue += '.';
   lastBtnPressed = "decimal";
-});
+}
 
-equalBtn.addEventListener('click', () => {
+function handleEqualsClick() {
   if (currentOperator === null) {
-    EvalDisplay.textContent = `${Math.round(newValue * 10**10) / 10**10} = `;
+    EvalDisplay.textContent = `${round(newValue)} = `;
   } else {
-    EvalDisplay.textContent = `${Math.round(currentEval * 10**10) / 10**10} ` +
-                              `${currentOperator} ${Math.round(newValue * 10**10) / 10**10} = `;
+    EvalDisplay.textContent = `${round(currentEval)} ${currentOperator} ${round(newValue)} = `;
   }
-  newValue = operate(currentOperator, currentEval, newValue);
-  newValDisplay.textContent = Math.round(newValue * 10**10) / 10**10;
-  currentEval = newValue;
+  currentEval = operate(currentOperator, currentEval, newValue);
+  if (currentEval === "zero_division") {
+    clearAll();
+    newValDisplay.textContent = "Can't divide by 0";
+    return;
+  }
+  newValDisplay.textContent = round(currentEval);
   lastBtnPressed = "equals";
-});
+}
 
-backBtn.addEventListener('click', () => {
+function handleNegateClick() {
+  
+}
+
+function handleBackClick() {
   if (lastBtnPressed === "operator" || lastBtnPressed === "equals") return;
   if (newValue.toString().length === 1) {
-    newValue = 0;
-    newValDisplay.textContent = 0;
+    newValue = "0";
+    newValDisplay.textContent = "0";
   } else {
     newValue = newValue.toString().slice(0, newValue.toString().length -1);
     newValDisplay.textContent = newValue;
   }
-});
+  lastBtnPressed = "digit";
+}
 
+function round(number) {
+  return Math.round(number * 10**DECIMALS) / 10**DECIMALS;
+}
 
 function add(a, b) {
   return Number(a) + Number(b);
@@ -89,12 +117,12 @@ function mult(a, b) {
 }
 
 function div(a, b) {
-  if (b == 0) alert("Can't divide by 0!");
+  if (b == 0) return "zero_division";
   else return Number(a) / Number(b);
 }
 
 function mod(a, b) {
-  if (b == 0) alert("Can't divide by 0!");
+  if (b == 0) return "zero_division";
   else return Number(a) % Number(b);
 }
 
@@ -120,15 +148,4 @@ function operate(op, a, b) {
       eval = b;
   }
   return eval;
-}
-
-function writeDigit(digit) {
-  if (lastBtnPressed === "equals") clearAll();
-  if (newValue.toString() === "0") newValue = "";
-  if (lastBtnPressed === "operator") {
-    newValue = digit;
-  } else {
-    newValue += digit;
-  }
-  newValDisplay.textContent = newValue;
 }
