@@ -6,15 +6,15 @@ const equalsBtn = document.querySelector('button.equals');
 const negateBtn = document.querySelector('button.negate');
 const backBtn = document.querySelector('button.backspace');
 
-const newValDisplay = document.querySelector('.new-value');
-const EvalDisplay = document.querySelector('.current-value');
+const mainDisplay = document.querySelector('.new-value');
+const operationDisplay = document.querySelector('.current-value');
 
 let currentEval = 0;
-let newValue = 0;
+let inputValue = 0;
 let currentOperator = null;
 let lastBtnPressed = null;
 
-const DECIMALS = 10;
+const MAX_DECIMALS = 10;
 
 clearBtn.addEventListener('click', clearAll);
 digitBtns.forEach(btn => btn.addEventListener('click', handleDigitClick));
@@ -26,82 +26,82 @@ backBtn.addEventListener('click', handleBackClick);
 
 function clearAll() {
   currentEval = 0;
-  newValue = 0;
+  inputValue = 0;
   currentOperator = null;
   lastBtnPressed = null;
-  newValDisplay.textContent = "0";
-  EvalDisplay.textContent = "";
+  mainDisplay.textContent = "0";
+  operationDisplay.textContent = "";
 }
 
 function handleDigitClick() {
   if (lastBtnPressed === "equals") clearAll();
-  if (newValue.toString() === "0") newValue = "";
+  if (inputValue.toString() === "0") inputValue = "";
   if (lastBtnPressed === "operator") {
-    newValue = this.textContent;
+    inputValue = this.textContent;
   } else {
-    newValue += this.textContent;
+    inputValue += this.textContent;
   }
-  newValDisplay.textContent = newValue;
+  mainDisplay.textContent = inputValue;
   lastBtnPressed = "digit";
 }
 
 function handleOperatorClick() {
   if (lastBtnPressed !== "operator" && lastBtnPressed !== "equals") {
-    currentEval = operate(currentOperator, currentEval, newValue);
+    currentEval = operate(currentOperator, currentEval, inputValue);
   }
   currentOperator = this.textContent;
-  EvalDisplay.textContent = `${round(currentEval)} ${currentOperator} `;
-  newValDisplay.textContent = round(currentEval);
+  operationDisplay.textContent = `${round(currentEval)} ${currentOperator} `;
+  mainDisplay.textContent = round(currentEval);
   lastBtnPressed = "operator";
 }
 
 function handleDecimalClick() {
   if (lastBtnPressed === "equals") clearAll();
-  else if (newValue.toString().includes('.') && lastBtnPressed !== "operator") {
+  else if (inputValue.toString().includes('.') && lastBtnPressed !== "operator") {
     return;
   } else if (lastBtnPressed === "operator") {
-    newValDisplay.textContent = 0;
-    newValue = 0;
+    mainDisplay.textContent = 0;
+    inputValue = 0;
   } 
-  newValDisplay.textContent += '.';
-  newValue += '.';
+  mainDisplay.textContent += '.';
+  inputValue += '.';
   lastBtnPressed = "decimal";
 }
 
 function handleEqualsClick() {
   if (currentOperator === null) {
-    EvalDisplay.textContent = `${round(newValue)} = `;
+    operationDisplay.textContent = `${round(inputValue)} = `;
   } else {
-    EvalDisplay.textContent = `${round(currentEval)} ${currentOperator} ${round(newValue)} = `;
+    operationDisplay.textContent = `${round(currentEval)} ${currentOperator} ${round(inputValue)} = `;
   }
-  currentEval = operate(currentOperator, currentEval, newValue);
+  currentEval = operate(currentOperator, currentEval, inputValue);
   if (currentEval === "zero_division") {
     clearAll();
-    newValDisplay.textContent = "Can't divide by 0";
+    mainDisplay.textContent = "Can't divide by 0";
     return;
   }
-  newValDisplay.textContent = round(currentEval);
+  mainDisplay.textContent = round(currentEval);
   lastBtnPressed = "equals";
 }
 
 function handleNegateClick() {
-  
+
 }
 
 function handleBackClick() {
   if (lastBtnPressed === "operator" || lastBtnPressed === "equals") return;
-  if (newValue.toString().length === 1) {
-    newValue = "0";
-    newValDisplay.textContent = "0";
+  if (inputValue.toString().length === 1) {
+    inputValue = "0";
+    mainDisplay.textContent = "0";
   } else {
-    newValue = newValue.toString().slice(0, newValue.toString().length -1);
-    newValDisplay.textContent = newValue;
+    inputValue = inputValue.toString().slice(0, inputValue.toString().length -1);
+    mainDisplay.textContent = inputValue;
   }
   lastBtnPressed = "digit";
 }
 
 function round(number) {
-  return Math.round(number * 10**DECIMALS) / 10**DECIMALS;
+  return Math.round(number * 10**MAX_DECIMALS) / 10**MAX_DECIMALS;
 }
 
 function add(a, b) {
@@ -127,25 +127,18 @@ function mod(a, b) {
 }
 
 function operate(op, a, b) {
-  let eval = 0;
   switch(op) {
     case "+":
-      eval = add(a, b);
-      break;
+      return add(a, b);
     case "-":
-      eval = sub(a, b);
-      break;
+      return sub(a, b);
     case "*":
-      eval = mult(a, b);
-      break;
+      return mult(a, b);
     case "/":
-      eval = div(a, b);
-      break;
+      return div(a, b);
     case "%":
-      eval = mod(a, b);
-      break;
+      return mod(a, b);
     default:
-      eval = b;
+      return b;
   }
-  return eval;
 }
