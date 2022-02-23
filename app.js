@@ -51,7 +51,10 @@ function handleKeyboardInput(e) {
 
   if (e.key === 'Escape') clearBtn.click();
   if (e.key === '.') decimalBtn.click();
-  if (e.key === '=' || e.key === 'Enter') equalsBtn.click();
+  if (e.key === '=') equalsBtn.click();
+  if (e.key === 'Enter' && document.activeElement === document.body)
+    equalsBtn.click();
+    
   if (e.key === 'Backspace') undoBtn.click();
 }
 

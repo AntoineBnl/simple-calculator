@@ -64,7 +64,7 @@ button {
   border: .15rem solid hsl(240, 5%, 50%);
   float: left;
   transition: all .05s ease;
-  outline: none;
+  outline-offset: -.7rem;
 }
 
 button:nth-of-type(4n+5) {
