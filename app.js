@@ -16,13 +16,25 @@ let lastBtnRegistered = null;
 
 const MAX_DECIMALS = 10;
 
+window.addEventListener('keydown', handleKeyboardInput)
+digitBtns.forEach(btn => btn.addEventListener('click', () => handleDigitClick(btn.textContent)));
+operatorBtns.forEach(btn => btn.addEventListener('click', () => handleOperatorClick(btn.textContent)));
+
 clearBtn.addEventListener('click', clearAll);
-digitBtns.forEach(btn => btn.addEventListener('click', handleDigitClick));
-operatorBtns.forEach(btn => btn.addEventListener('click', handleOperatorClick));
 decimalBtn.addEventListener('click', handleDecimalClick);
 equalsBtn.addEventListener('click', handleEqualsClick);
 negateBtn.addEventListener('click', handleNegateClick);
 undoBtn.addEventListener('click', handleUndoClick);
+
+function handleKeyboardInput(e) {
+  if (e.key === 'Escape') clearAll();
+  if (e.key >= 0 && e.key <= 9) handleDigitClick(e.key);
+  if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/')
+    handleOperatorClick(e.key);
+  if (e.key === '.') handleDecimalClick();
+  if (e.key === '=' || e.key === 'Enter') handleEqualsClick();
+  if (e.key === 'Backspace') handleUndoClick();
+}
 
 function clearAll() {
   currentEval = 0;
@@ -33,24 +45,24 @@ function clearAll() {
   operationDisplay.textContent = "";
 }
 
-function handleDigitClick() {
+function handleDigitClick(digit) {
   if (lastBtnRegistered === "equals") clearAll();
   if (inputValue.toString() === "0") inputValue = "";
   if (lastBtnRegistered === "operator") {
-    inputValue = this.textContent;
+    inputValue = digit;
   } else {
-    inputValue += this.textContent;
+    inputValue += digit;
   }
   mainDisplay.textContent = inputValue;
 
   lastBtnRegistered = "digit";
 }
 
-function handleOperatorClick() {
+function handleOperatorClick(op) {
   if (lastBtnRegistered !== "operator" && lastBtnRegistered !== "equals") {
     evaluate();
   }
-  currentOperator = this.textContent;
+  currentOperator = op;
   operationDisplay.textContent = `${round(currentEval)} ${currentOperator} `;
   inputValue = currentEval;
 
