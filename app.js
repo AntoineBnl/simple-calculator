@@ -4,7 +4,7 @@ const operatorBtns = document.querySelectorAll('button.operator');
 const decimalBtn = document.querySelector('button.decimal');
 const equalsBtn = document.querySelector('button.equals');
 const negateBtn = document.querySelector('button.negate');
-const backBtn = document.querySelector('button.backspace');
+const undoBtn = document.querySelector('button.undo');
 
 const mainDisplay = document.querySelector('.new-value');
 const operationDisplay = document.querySelector('.current-value');
@@ -12,7 +12,7 @@ const operationDisplay = document.querySelector('.current-value');
 let currentEval = 0;
 let inputValue = 0;
 let currentOperator = null;
-let lastBtnPressed = null;
+let lastBtnRegistered = null;
 
 const MAX_DECIMALS = 10;
 
@@ -22,50 +22,49 @@ operatorBtns.forEach(btn => btn.addEventListener('click', handleOperatorClick));
 decimalBtn.addEventListener('click', handleDecimalClick);
 equalsBtn.addEventListener('click', handleEqualsClick);
 negateBtn.addEventListener('click', handleNegateClick);
-backBtn.addEventListener('click', handleBackClick);
+undoBtn.addEventListener('click', handleUndoClick);
 
 function clearAll() {
   currentEval = 0;
   inputValue = 0;
   currentOperator = null;
-  lastBtnPressed = null;
+  lastBtnRegistered = null;
   mainDisplay.textContent = "0";
   operationDisplay.textContent = "";
 }
 
 function handleDigitClick() {
-  if (lastBtnPressed === "equals") clearAll();
+  if (lastBtnRegistered === "equals") clearAll();
   if (inputValue.toString() === "0") inputValue = "";
-  if (lastBtnPressed === "operator") {
+  if (lastBtnRegistered === "operator") {
     inputValue = this.textContent;
   } else {
     inputValue += this.textContent;
   }
   mainDisplay.textContent = inputValue;
-  lastBtnPressed = "digit";
+
+  lastBtnRegistered = "digit";
 }
 
 function handleOperatorClick() {
-  if (lastBtnPressed !== "operator" && lastBtnPressed !== "equals") {
-    currentEval = operate(currentOperator, currentEval, inputValue);
+  if (lastBtnRegistered !== "operator" && lastBtnRegistered !== "equals") {
+    evaluate();
   }
   currentOperator = this.textContent;
   operationDisplay.textContent = `${round(currentEval)} ${currentOperator} `;
-  mainDisplay.textContent = round(currentEval);
-  lastBtnPressed = "operator";
+  inputValue = currentEval;
+
+  lastBtnRegistered = "operator";
 }
 
-function handleDecimalClick() {
-  if (lastBtnPressed === "equals") clearAll();
-  else if (inputValue.toString().includes('.') && lastBtnPressed !== "operator") {
+function evaluate() {
+  currentEval = operate(currentOperator, currentEval, inputValue);
+  if (currentEval === "zero_division") {
+    clearAll();
+    mainDisplay.textContent = "Can't divide by 0";
     return;
-  } else if (lastBtnPressed === "operator") {
-    mainDisplay.textContent = 0;
-    inputValue = 0;
-  } 
-  mainDisplay.textContent += '.';
-  inputValue += '.';
-  lastBtnPressed = "decimal";
+  }
+  mainDisplay.textContent = round(currentEval);
 }
 
 function handleEqualsClick() {
@@ -74,22 +73,46 @@ function handleEqualsClick() {
   } else {
     operationDisplay.textContent = `${round(currentEval)} ${currentOperator} ${round(inputValue)} = `;
   }
-  currentEval = operate(currentOperator, currentEval, inputValue);
-  if (currentEval === "zero_division") {
-    clearAll();
-    mainDisplay.textContent = "Can't divide by 0";
+  evaluate();
+
+  lastBtnRegistered = "equals";
+}
+
+function handleDecimalClick() {
+  if (lastBtnRegistered === "equals") clearAll();
+  else if (inputValue.toString().includes('.') && lastBtnRegistered !== "operator") {
     return;
+  } else if (lastBtnRegistered === "operator") {
+    mainDisplay.textContent = 0;
+    inputValue = 0;
   }
-  mainDisplay.textContent = round(currentEval);
-  lastBtnPressed = "equals";
+  mainDisplay.textContent += '.';
+  inputValue += '.';
+
+  lastBtnRegistered = "decimal";
 }
 
 function handleNegateClick() {
-
+  if (lastBtnRegistered === "digit") {
+    inputValue = -inputValue;
+    mainDisplay.textContent = inputValue;
+  } else if (lastBtnRegistered === "decimal") {
+    if (inputValue.startsWith('-')) inputValue = inputValue.substring(1);
+    else inputValue = '-' + inputValue;
+    mainDisplay.textContent = inputValue;
+  } else if (lastBtnRegistered === "equals") {
+    currentEval = -currentEval
+    mainDisplay.textContent = round(currentEval);
+    operationDisplay.textContent = round(currentEval);
+  } else {
+    inputValue = -inputValue;
+    operationDisplay.textContent = `${round(currentEval)} ${currentOperator} ${round(inputValue)}`;
+    mainDisplay.textContent = round(inputValue);
+  }
 }
 
-function handleBackClick() {
-  if (lastBtnPressed === "operator" || lastBtnPressed === "equals") return;
+function handleUndoClick() {
+  if (lastBtnRegistered === "operator" || lastBtnRegistered === "equals") return;
   if (inputValue.toString().length === 1) {
     inputValue = "0";
     mainDisplay.textContent = "0";
@@ -97,7 +120,7 @@ function handleBackClick() {
     inputValue = inputValue.toString().slice(0, inputValue.toString().length -1);
     mainDisplay.textContent = inputValue;
   }
-  lastBtnPressed = "digit";
+  lastBtnRegistered = "digit";
 }
 
 function round(number) {
