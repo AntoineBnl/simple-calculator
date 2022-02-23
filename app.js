@@ -6,8 +6,10 @@ const equalsBtn = document.querySelector('button.equals');
 const negateBtn = document.querySelector('button.negate');
 const undoBtn = document.querySelector('button.undo');
 
-const mainDisplay = document.querySelector('.new-value');
-const operationDisplay = document.querySelector('.current-value');
+const allBtns = document.querySelectorAll('button');
+
+const mainDisplay = document.querySelector('.main-display > bdi');
+const operationDisplay = document.querySelector('.operation-display > bdi');
 
 let currentEval = 0;
 let inputValue = 0;
@@ -17,8 +19,8 @@ let lastBtnRegistered = null;
 const MAX_DECIMALS = 10;
 
 window.addEventListener('keydown', handleKeyboardInput)
-digitBtns.forEach(btn => btn.addEventListener('click', () => handleDigitClick(btn.textContent)));
-operatorBtns.forEach(btn => btn.addEventListener('click', () => handleOperatorClick(btn.textContent)));
+digitBtns.forEach(btn => btn.addEventListener('click', handleDigitClick));
+operatorBtns.forEach(btn => btn.addEventListener('click', handleOperatorClick));
 
 clearBtn.addEventListener('click', clearAll);
 decimalBtn.addEventListener('click', handleDecimalClick);
@@ -26,14 +28,31 @@ equalsBtn.addEventListener('click', handleEqualsClick);
 negateBtn.addEventListener('click', handleNegateClick);
 undoBtn.addEventListener('click', handleUndoClick);
 
+allBtns.forEach(btn => {
+  btn.addEventListener('click', addTransition);
+  btn.addEventListener('transitionend', removeTransition);
+});
+
+function addTransition(e) {
+  e.target.classList.add('clicked');
+}
+
+function removeTransition(e) {
+  if (e.propertyName !== 'transform') return;
+    e.target.classList.remove('clicked');
+}
+
 function handleKeyboardInput(e) {
-  if (e.key === 'Escape') clearAll();
-  if (e.key >= 0 && e.key <= 9) handleDigitClick(e.key);
+  if (e.key >= 0 && e.key <= 9)
+    Array.from(digitBtns).find(btn => btn.textContent === e.key).click();
+
   if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/')
-    handleOperatorClick(e.key);
-  if (e.key === '.') handleDecimalClick();
-  if (e.key === '=' || e.key === 'Enter') handleEqualsClick();
-  if (e.key === 'Backspace') handleUndoClick();
+    Array.from(operatorBtns).find(btn => btn.textContent === e.key).click();
+
+  if (e.key === 'Escape') clearBtn.click();
+  if (e.key === '.') decimalBtn.click();
+  if (e.key === '=' || e.key === 'Enter') equalsBtn.click();
+  if (e.key === 'Backspace') undoBtn.click();
 }
 
 function clearAll() {
@@ -45,24 +64,24 @@ function clearAll() {
   operationDisplay.textContent = "";
 }
 
-function handleDigitClick(digit) {
+function handleDigitClick() {
   if (lastBtnRegistered === "equals") clearAll();
   if (inputValue.toString() === "0") inputValue = "";
   if (lastBtnRegistered === "operator") {
-    inputValue = digit;
+    inputValue = this.textContent;
   } else {
-    inputValue += digit;
+    inputValue += this.textContent;
   }
   mainDisplay.textContent = inputValue;
 
   lastBtnRegistered = "digit";
 }
 
-function handleOperatorClick(op) {
+function handleOperatorClick() {
   if (lastBtnRegistered !== "operator" && lastBtnRegistered !== "equals") {
     evaluate();
   }
-  currentOperator = op;
+  currentOperator = this.textContent;
   operationDisplay.textContent = `${round(currentEval)} ${currentOperator} `;
   inputValue = currentEval;
 

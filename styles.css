@@ -27,27 +27,29 @@ header {
 
 .calculator {
   border: .15rem solid hsl(240, 5%, 50%);
-  min-width: 24rem;
+  width: 24rem;
   background-color: hsl(240, 5%, 50%);
   box-shadow: rgba(0, 0, 0, 0.32) 0px 3px 6px, rgba(0, 0, 0, 0.46) 0px 3px 6px;
 }
 
-.calc-display {
+.display-container {
   box-sizing: border-box;
-  width: 100%;
   background-color: hsl(240, 8%, 11%);
   border: .15rem solid hsl(240, 5%, 50%);
+  overflow-x: auto;
+  direction: rtl;
 }
 
-.current-value {
+.operation-display {
   height: 1.5rem;
   text-align: right;
   font-size: 1.5rem;
   padding: .6rem .6rem .3rem;
   color: hsl(240, 5%, 83%);
+  white-space: nowrap;
 }
 
-.new-value {
+.main-display {
   height: 3.6rem;
   text-align: right;
   font-size: 3rem;
@@ -61,6 +63,8 @@ button {
   font-size: 2rem;
   border: .15rem solid hsl(240, 5%, 50%);
   float: left;
+  transition: all .05s ease;
+  outline: none;
 }
 
 button:nth-of-type(4n+5) {
@@ -73,6 +77,11 @@ button:nth-of-type(-n+4), button:nth-of-type(4n+4) {
 
 button:hover {
   background-color: hsl(240, 8%, 25%);
+}
+
+button.clicked {
+  transform: scale(1.1);
+  background-color: hsl(240, 8%, 50%);
 }
 
 footer, footer > * {
